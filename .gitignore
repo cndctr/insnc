@@ -1,5 +1,14 @@
+# Build artifacts
+*.egg-info/
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
+
+# Env and config
 .env
-operation_history.xlsx
+*.xlsx
+
+# OS-specific
+.DS_Store
+Thumbs.db
