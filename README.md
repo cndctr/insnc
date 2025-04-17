@@ -22,7 +22,7 @@
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/your-username/insnc.git
+git clone https://github.com/cndctr/insnc.git
 cd insnc
 pip install -r requirements.txt
 ```
