@@ -1,8 +1,9 @@
 # insnc/main.py
 import argparse
-from auth import login_and_get_token
-from extractor import fetch_operations
-from exporter import export_operations_to_excel
+from insnc.auth import login_and_get_token
+from insnc.extractor import fetch_operations
+from insnc.exporter import export_operations_to_excel
+
 
 
 def main():
