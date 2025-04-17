@@ -29,16 +29,11 @@ pip install -r requirements.txt
 
 ### 2. Set up environment variables
 
-```bash
-export ALFA_LOGIN=your_login
-export ALFA_AUTH=$(echo -n "your_login:your_password" | base64)
-```
-
-Or on Windows CMD:
+On Windows CMD:
 
 ```cmd
-set ALFA_LOGIN=your_login
-set ALFA_AUTH=base64encoded_credentials
+setx ALFA_LOGIN="your_login"
+setx ALFA_AUTH="base64encoded_credentials"
 ```
 
 ---
