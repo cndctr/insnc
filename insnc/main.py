@@ -7,12 +7,26 @@ from insnc.exporter import export_operations_to_excel
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Interact with Alfa-Bank web API")
+    parser = argparse.ArgumentParser(
+        description="Interact with Alfa-Bank web API",
+        epilog="""
+Examples:
+  insnc --history              Fetch recent 50 transactions
+  insnc --history --items 100  Fetch 100 transactions
+  insnc --balance              Show account balances in console
+  insnc --history -e           Export recent 50 transactions to Excel
+""",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument("--history", action="store_true", help="Fetch operations history")
     parser.add_argument("--items", "-i", type=int, default=50, help="Number of operations to fetch")
     parser.add_argument("--balance", action="store_true", help="Fetch balance info")
     parser.add_argument("--export", "-e", action="store_true", help="Export data to Excel")
     args = parser.parse_args()
+
+    if not args.history and not args.balance:
+        parser.print_help()
+        return
 
     token, headers, session = login_and_get_token()
 
@@ -38,9 +52,6 @@ def main():
         print("\n=== Account Balances ===")
         for acc in balances:
             print(f"{acc['title']:<25} {acc['amount']:>10.2f} {acc['currency']}")
-
-    else:
-        parser.print_help()
 
 
 if __name__ == "__main__":
