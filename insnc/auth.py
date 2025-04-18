@@ -31,6 +31,7 @@ def login_and_get_token():
         json={"login": login}
     )
     assert resp.ok and resp.json().get("status") == "SUCCESS"
+    print(f"[✓] Login '{login}' accepted")
 
     # Step 2: Password
     headers["Authorization"] = f"Basic {auth_env}"
@@ -39,6 +40,7 @@ def login_and_get_token():
         headers=headers
     )
     assert resp.ok and resp.json().get("status") == "SUCCESS"
+    print("[✓] Password accepted")
 
     # Step 3: Token
     resp = session.get(
@@ -49,4 +51,6 @@ def login_and_get_token():
     assert token and token.startswith("Bearer ")
 
     headers["Authorization"] = token
+    print("[✓] Bearer token received")
+    
     return token, headers, session

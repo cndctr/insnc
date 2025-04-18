@@ -28,3 +28,29 @@ def fetch_operations(session, headers, total_items=50):
         all_items.extend(items)
 
     return all_items
+
+def fetch_balance(session, headers):
+    response = session.get(
+        "https://insync3.alfa-bank.by/web/api/account/list",
+        headers=headers
+    )
+
+    if not response.ok:
+        print(f"[✗] Failed to fetch balance: {response.status_code}")
+        return []
+
+    accounts = response.json().get("accounts", [])
+    balances = []
+
+    for acc in accounts:
+        try:
+            info = acc["widgetInfo"]["info"]
+            balances.append({
+                "title": info.get("title", ""),
+                "amount": info["amount"]["amount"],
+                "currency": info["amount"]["postfix"]
+            })
+        except (KeyError, TypeError):
+            continue
+
+    return balances

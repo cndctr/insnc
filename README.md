@@ -12,7 +12,6 @@
   - Приход (Income)
   - Расход (Expense)
   - Перевод (Transfer)
-- ⚙️ Modular structure (easy to extend: cards, balances, credits)
 - 🧩 CLI interface (`--history`, `--items`, `--balance`)
 
 ---
@@ -47,7 +46,7 @@ python main.py --history
 # Fetch a custom number of items
 python main.py --history --items 100
 
-# Future feature: get account balance
+# Get cards' balance
 python main.py --balance
 ```
 
