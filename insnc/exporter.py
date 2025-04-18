@@ -1,7 +1,8 @@
 # insnc/exporter.py
 
-import pandas as pd
 from datetime import datetime
+from openpyxl import Workbook
+from openpyxl.utils import get_column_letter
 
 def format_date(raw):
     return datetime.strptime(raw, "%Y%m%d%H%M%S").strftime("%Y-%m-%d %H:%M:%S")
@@ -59,7 +60,28 @@ def export_operations_to_excel(items, filename="operation_history.xlsx"):
         }
         final_records.append(record)
 
-    df = pd.DataFrame(final_records)
-    df.sort_values("date", inplace=True)
-    df.to_excel(filename, index=False)
+    # Sort by date
+    final_records.sort(key=lambda r: r["date"])
+
+    # Create Excel workbook
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Operations"
+
+    # Write header
+    headers = ["date", "title", "description", "Expense", "Income", "postfix", "type"]
+    ws.append(headers)
+
+    # Write rows
+    for record in final_records:
+        row = [record.get(h) for h in headers]
+        ws.append(row)
+
+    # Auto-width columns
+    for col in ws.columns:
+        max_length = max((len(str(cell.value)) if cell.value is not None else 0) for cell in col)
+        col_letter = get_column_letter(col[0].column)
+        ws.column_dimensions[col_letter].width = max_length + 2
+
+    wb.save(filename)
     print(f"[✓] Exported to '{filename}'")
