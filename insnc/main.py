@@ -19,9 +19,9 @@ Examples:
 """,
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("--history", action="store_true", help="Fetch operations history")
-    parser.add_argument("--items", type=int, default=50, help="Number of operations to fetch")
-    parser.add_argument("--balance", action="store_true", help="Fetch balance info")
+    parser.add_argument("--history", "-s", action="store_true", help="Fetch operations history")
+    parser.add_argument("--items", "-i", type=int, default=50, help="Number of operations to fetch")
+    parser.add_argument("--balance", "-b", action="store_true", help="Fetch balance info")
     parser.add_argument("--export", "-e", nargs="?", const=True, help="Export data to Excel (optional: custom path)")
     args = parser.parse_args()
 
