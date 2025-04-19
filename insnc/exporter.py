@@ -7,7 +7,7 @@ from openpyxl.utils import get_column_letter
 def format_date(raw):
     return datetime.strptime(raw, "%Y%m%d%H%M%S").strftime("%Y-%m-%d %H:%M:%S")
 
-def export_operations_to_excel(items, filename="operation_history.xlsx"):
+def export_operations_to_excel(items, filename=None):
     processed_ids = set()
     final_records = []
 
@@ -82,6 +82,9 @@ def export_operations_to_excel(items, filename="operation_history.xlsx"):
         max_length = max((len(str(cell.value)) if cell.value is not None else 0) for cell in col)
         col_letter = get_column_letter(col[0].column)
         ws.column_dimensions[col_letter].width = max_length + 2
+
+    if not filename:
+        filename = "operation_history.xlsx"
 
     wb.save(filename)
     print(f"[✓] Exported to '{filename}'")

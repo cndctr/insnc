@@ -15,13 +15,14 @@ Examples:
   insnc --history --items 100  Fetch 100 transactions
   insnc --balance              Show account balances in console
   insnc --history -e           Export recent 50 transactions to Excel
+  insnc --history -e custom.xlsx  Export to custom path
 """,
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("--history", action="store_true", help="Fetch operations history")
-    parser.add_argument("--items", "-i", type=int, default=50, help="Number of operations to fetch")
+    parser.add_argument("--items", type=int, default=50, help="Number of operations to fetch")
     parser.add_argument("--balance", action="store_true", help="Fetch balance info")
-    parser.add_argument("--export", "-e", action="store_true", help="Export data to Excel")
+    parser.add_argument("--export", "-e", nargs="?", const=True, help="Export data to Excel (optional: custom path)")
     args = parser.parse_args()
 
     if not args.history and not args.balance:
@@ -35,7 +36,8 @@ Examples:
         operations = fetch_operations(session, headers, total_items=args.items)
 
         if args.export:
-            export_operations_to_excel(operations)
+            export_path = args.export if isinstance(args.export, str) else "operation_history.xlsx"
+            export_operations_to_excel(operations, filename=export_path)
         else:
             print("\n=== Operations ===")
             for op in operations:
