@@ -4,6 +4,9 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+build
+dist
+insnc.spec
 
 # Env and config
 .env

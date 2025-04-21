@@ -8,6 +8,7 @@
 
 - 🔐 Secure login using environment variables
 - 📜 Fetch transaction history
+- 📜 Fetch cards balance
 - 📊 Export to Excel with categorized operations:
   - Приход (Income)
   - Расход (Expense)
@@ -31,9 +32,10 @@ pip install -r requirements.txt
 On Windows CMD:
 
 ```cmd
-setx ALFA_LOGIN="your_login"
-setx ALFA_AUTH="base64encoded_credentials"
+setx ALFA_LOGIN "your_login"
+setx ALFA_AUTH "base64encoded_credentials"
 ```
+You can use [base64decode.org](https://www.base64decode.org/) to encode your credentials pair - login:password
 
 ---
 
@@ -53,7 +55,8 @@ python main.py --balance
 Or after setup as CLI:
 
 ```bash
-insnc --history --items 50
+insnc --history --items 20
+insnc -s -i 20
 ```
 
 ---
