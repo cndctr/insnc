@@ -11,6 +11,7 @@ insnc.spec
 # Env and config
 .env
 *.xlsx
+.vscode
 
 # OS-specific
 .DS_Store
