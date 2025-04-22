@@ -1,7 +1,7 @@
 # insnc/main.py
 import argparse
 from insnc.auth import login_and_get_token
-from insnc.extractor import fetch_operations, fetch_balance
+from insnc.extractor import fetch_operations, fetch_balance, get_packet_info
 from insnc.exporter import export_operations_to_excel
 
 
@@ -11,11 +11,9 @@ def main():
         description="Interact with Alfa-Bank web API",
         epilog="""
 Examples:
-  insnc --history              Fetch recent 50 transactions
-  insnc --history --items 100  Fetch 100 transactions
   insnc --balance              Show account balances in console
-  insnc --history -e           Export recent 50 transactions to Excel
-  insnc --history -e custom.xlsx  Export to custom path
+  insnc --history --items 100  Fetch 100 transactions
+  insnc -s -e history.xlsx     Export 50 transactions to Excel file
 """,
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
@@ -23,9 +21,12 @@ Examples:
     parser.add_argument("--items", "-i", type=int, default=50, help="Number of operations to fetch")
     parser.add_argument("--balance", "-b", action="store_true", help="Fetch balance info")
     parser.add_argument("--export", "-e", nargs="?", const=True, help="Export data to Excel (optional: custom path)")
+    parser.add_argument("--package", "-p", action="store_true", help="Show package subscription conditions")
+
     args = parser.parse_args()
 
-    if not args.history and not args.balance:
+    core_flags = ["history", "balance", "package"]  # extend as needed
+    if not any(getattr(args, flag) for flag in core_flags):
         parser.print_help()
         return
 
@@ -39,7 +40,7 @@ Examples:
             export_path = args.export if isinstance(args.export, str) else "operation_history.xlsx"
             export_operations_to_excel(operations, filename=export_path)
         else:
-            print("\n=== Operations ===")
+            print("\n=== 💳 Operations ===")
             for op in operations:
                 date = op.get("date")
                 amount = op.get("amount", {}).get("amount")
@@ -51,9 +52,32 @@ Examples:
         print("[→] Fetching account balances...")
         balances = fetch_balance(session, headers)
 
-        print("\n=== Account Balances ===")
+        print("\n=== ⚖️ Account Balances ===")
         for acc in balances:
             print(f"{acc['title']:<25} {acc['amount']:>10.2f} {acc['currency']}")
+
+    elif args.package:
+        data = get_packet_info(session, headers)
+        if not data:
+            exit()
+
+        info = data["packageInfo"]
+        print("\n=== 💼 Package Info ===")
+        print(f"Title     : {info['title']}")
+        print(f"Status    : {info['status']['name']}")
+        print(f"Payment   : {info['paymentDescription']}")
+
+        print("\n=== 📋 Conditions for free service ===")
+        print(data["conditionsTitle"])
+        print(data["conditionsDescription"])
+        print()
+
+        for cond in data["conditions"]:
+            achieved = "✅" if cond["percent"] >= 1.0 else "⚠️"
+            current = cond["currentValue"]["amount"]
+            target = cond["endValue"]["amount"]
+            postfix = cond["currentValue"]["postfix"] or ""
+            print(f"{achieved} {cond['text']:<30} {current:.2f}/{target:.2f} {postfix}")
 
 
 if __name__ == "__main__":

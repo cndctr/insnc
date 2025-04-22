@@ -1,6 +1,6 @@
 # 🏦 insnc — Alfa-Bank Web API CLI
 
-`insnc` is a command-line tool for accessing your Alfa-Bank account data via the web API used by [insnc.by](https://insnc.by). It supports secure login, history retrieval, and export to Excel — all without using a browser.
+`insnc` is a command-line tool for accessing your Alfa-Bank account data via the web API used by [insnc.by](https://insnc.by).
 
 ---
 
@@ -9,11 +9,11 @@
 - 🔐 Secure login using environment variables
 - 📜 Fetch transaction history
 - 📜 Fetch cards balance
+- 💼 Get information about your service package
 - 📊 Export to Excel with categorized operations:
   - Приход (Income)
   - Расход (Expense)
   - Перевод (Transfer)
-- 🧩 CLI interface (`--history`, `--items`, `--balance`)
 
 ---
 
@@ -25,6 +25,11 @@
 git clone https://github.com/cndctr/insnc.git
 cd insnc
 pip install -r requirements.txt
+```
+You can install it locally using `pip`
+
+```bash
+pip install --editable .
 ```
 
 ### 2. Configure 

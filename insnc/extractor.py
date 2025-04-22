@@ -54,3 +54,15 @@ def fetch_balance(session, headers):
             continue
 
     return balances
+
+def get_packet_info(session, headers):
+    response = session.get(
+        "https://insync3.alfa-bank.by/web/api/package-solution/info",
+        headers=headers
+    )
+
+    if not response.ok:
+        print("[✗] Failed to retrieve package info.")
+        return None
+
+    return response.json()
