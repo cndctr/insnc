@@ -10,6 +10,7 @@
 - 📜 Fetch transaction history
 - 📜 Fetch cards balance
 - 💼 Get information about your service package
+- 🎁 Get information about youy loyalty program (status and history)
 - 📊 Export to Excel with categorized operations:
   - Приход (Income)
   - Расход (Expense)
@@ -82,6 +83,9 @@ python main.py --history --items 100
 
 # Get cards' balance
 python main.py --balance
+
+# Fetch loyalty program status and history
+python main.py --loyalty_status --loyalty_history
 ```
 
 Or after setup using pip locally:
