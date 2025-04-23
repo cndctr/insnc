@@ -16,3 +16,4 @@ insnc.spec
 # OS-specific
 .DS_Store
 Thumbs.db
+test.txt
