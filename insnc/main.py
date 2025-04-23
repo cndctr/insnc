@@ -1,8 +1,8 @@
 # insnc/main.py
 import argparse
-from insnc.auth import login_and_get_token
-from insnc.extractor import fetch_operations, fetch_balance, get_packet_info
-from insnc.exporter import export_operations_to_excel
+import auth
+import extractor
+import exporter
 
 
 
@@ -30,15 +30,15 @@ Examples:
         parser.print_help()
         return
 
-    token, headers, session = login_and_get_token()
+    token, headers, session = auth.login_and_get_token()
 
     if args.history:
         print(f"[→] Fetching {args.items} history items...")
-        operations = fetch_operations(session, headers, total_items=args.items)
+        operations = extractor.fetch_operations(session, headers, total_items=args.items)
 
         if args.export:
             export_path = args.export if isinstance(args.export, str) else "operation_history.xlsx"
-            export_operations_to_excel(operations, filename=export_path)
+            exporter.export_operations_to_excel(operations, filename=export_path)
         else:
             print("\n=== 💳 Operations ===")
             for op in operations:
@@ -50,14 +50,14 @@ Examples:
 
     elif args.balance:
         print("[→] Fetching account balances...")
-        balances = fetch_balance(session, headers)
+        balances = extractor.fetch_balance(session, headers)
 
         print("\n=== ⚖️ Account Balances ===")
         for acc in balances:
             print(f"{acc['title']:<25} {acc['amount']:>10.2f} {acc['currency']}")
 
     elif args.package:
-        data = get_packet_info(session, headers)
+        data = extractor.get_packet_info(session, headers)
         if not data:
             exit()
 
