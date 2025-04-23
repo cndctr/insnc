@@ -48,9 +48,20 @@ How to get base64 encoded credentials?
  - You can use [base64decode.org](https://www.base64decode.org/) to encode your credentials pair - login:password
 
 How to get "X-Client-App" and "X-Dev-ID"?
- - ...
+1. When you log in to [insnc.by](https://insnc.by) in your browser for the first time, the bank will prompt you with the second step of 2FA and display a QR code on the screen.  
+   You must scan this code using the **Insync mobile app** — this authorizes the new device and browser. After successful login, you can capture the required parameters as follows:
+2. Open [insnc.by](https://insnc.by) in your browser and open **Developer Tools** (`Ctrl+Shift+I`). Switch to the **Network** tab.
+3. Enter your login and click **"Продолжить"**. You should see some network activity.
+4. Look for the `POST` request related to login credentials — select it.
+5. In the **Request Headers**, find `X-Client-App` and `X-Dev-ID`. Copy these values and paste them into your `config.json` file.
+Example:
 
-If you don't want to store your credentials in config file then set environment variables:
+
+![image](https://github.com/user-attachments/assets/1a24854b-85b0-44e7-9d32-767a9b392550)
+
+
+What if you don't want to store your credentials in config.json?
+ -  Then set environment variables:
 
 ```cmd
 setx ALFA_LOGIN "your_login"
@@ -73,7 +84,7 @@ python main.py --history --items 100
 python main.py --balance
 ```
 
-Or after setup as CLI:
+Or after setup using pip locally:
 
 ```bash
 insnc --history --items 20
