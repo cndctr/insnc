@@ -78,3 +78,22 @@ def get_loyalty_status(session, headers):
         return None
 
     return response.json()
+
+def fetch_loyalty_history(session, headers, page_size=20, offset=0):
+    payload = {
+        "pageSize": page_size,
+        "offset": offset,
+        "filter": {}
+    }
+
+    response = session.post(
+        "https://insync3.alfa-bank.by/web/api/loyalty-program/history",
+        headers=headers,
+        json=payload
+    )
+
+    if not response.ok:
+        print("[✗] Failed to fetch loyalty history")
+        return []
+
+    return response.json().get("items", [])

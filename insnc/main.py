@@ -68,6 +68,26 @@ def handle_loyalty(args, session, headers):
     print(f"Connected : {'Yes' if connected else 'No'}")
     print(f"Balance   : {bonus['amount']} {bonus['postfix']}")
 
+def handle_loyalty_history(args, session, headers):
+    items = insnc.extractor.fetch_loyalty_history(session, headers)
+
+    if not items:
+        return
+
+    print("\n=== 🎁🧾 Loyalty Program History ===")
+    for item in items:
+        date_raw = item.get("date", "")
+        date_fmt = f"{date_raw[:4]}-{date_raw[4:6]}-{date_raw[6:8]} {date_raw[8:10]}:{date_raw[10:12]}:{date_raw[12:14]}" if len(date_raw) == 14 else date_raw
+
+        title = item.get("title", "")
+        desc = item.get("description", "")
+        primary = item.get("primaryAmount", {})
+        additional = item.get("additionalAmount", {})
+        tag = item.get("additionalInfo", "")
+
+        print(f"{date_fmt} | {title:<30} | {desc:<20} | {primary['amount']:>6} {primary['postfix']} | {additional['amount']:>8} {additional['postfix']} {f'({tag})' if tag else ''}")
+
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -87,6 +107,8 @@ Examples:
     parser.add_argument("--export", "-e", nargs="?", const=True, help="Export data to Excel (optional: custom path)")
     parser.add_argument("--package", "-p", action="store_true", help="Show package subscription conditions")
     parser.add_argument("--loyalty_status", action="store_true", help="Show loyalty program bonus balance")
+    parser.add_argument("--loyalty_history", action="store_true", help="Show loyalty bonus transactions")
+
 
     args = parser.parse_args()
 
@@ -95,7 +117,8 @@ Examples:
         "history": handle_history,
         "balance": handle_balance,
         "package": handle_package,
-        "loyalty_status": handle_loyalty
+        "loyalty_status": handle_loyalty,
+        "loyalty_history": handle_loyalty_history
     }
 
     # Check if nothing is selected
