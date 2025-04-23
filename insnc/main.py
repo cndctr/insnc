@@ -22,10 +22,12 @@ Examples:
     parser.add_argument("--balance", "-b", action="store_true", help="Fetch balance info")
     parser.add_argument("--export", "-e", nargs="?", const=True, help="Export data to Excel (optional: custom path)")
     parser.add_argument("--package", "-p", action="store_true", help="Show package subscription conditions")
+    parser.add_argument("--loyalty_status", action="store_true", help="Show loyalty program bonus balance")
+
 
     args = parser.parse_args()
 
-    core_flags = ["history", "balance", "package"]  # extend as needed
+    core_flags = ["history", "balance", "package", "loyalty_status"]  # extend as needed
     if not any(getattr(args, flag) for flag in core_flags):
         parser.print_help()
         return
@@ -78,6 +80,19 @@ Examples:
             target = cond["endValue"]["amount"]
             postfix = cond["currentValue"]["postfix"] or ""
             print(f"{achieved} {cond['text']:<30} {current:.2f}/{target:.2f} {postfix}")
+
+    elif args.loyalty_status:
+        data = insnc.extractor.get_loyalty_status(session, headers)
+        if not data:
+            exit()
+
+        bonus = data["bonusAmount"]
+        connected = data["isConnected"]
+
+        print("\n=== 🎁 Loyalty Program Status ===")
+        print(f"Connected : {'Yes' if connected else 'No'}")
+        print(f"Balance   : {bonus['amount']} {bonus['postfix']}")
+
 
 
 if __name__ == "__main__":

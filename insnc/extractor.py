@@ -66,3 +66,15 @@ def get_packet_info(session, headers):
         return None
 
     return response.json()
+
+def get_loyalty_status(session, headers):
+    response = session.get(
+        "https://insync3.alfa-bank.by/web/api/loyalty-program/status",
+        headers=headers
+    )
+
+    if not response.ok:
+        print("[✗] Failed to retrieve loyalty program status.")
+        return None
+
+    return response.json()
