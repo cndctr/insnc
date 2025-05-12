@@ -4,6 +4,7 @@ import argparse
 import insnc.auth
 import insnc.extractor
 import insnc.exporter
+from insnc.exporter import format_date
 
 
 def handle_history(args, session, headers):
@@ -16,7 +17,7 @@ def handle_history(args, session, headers):
     else:
         print("\n=== 💳 Operations ===")
         for op in operations:
-            date = op.get("date")
+            date = format_date(op.get("date"))
             amount = op.get("amount", {}).get("amount")
             postfix = op.get("amount", {}).get("postfix")
             desc = op.get("description", "")
@@ -76,16 +77,15 @@ def handle_loyalty_history(args, session, headers):
 
     print("\n=== 🎁🧾 Loyalty Program History ===")
     for item in items:
-        date_raw = item.get("date", "")
-        date_fmt = f"{date_raw[:4]}-{date_raw[4:6]}-{date_raw[6:8]} {date_raw[8:10]}:{date_raw[10:12]}:{date_raw[12:14]}" if len(date_raw) == 14 else date_raw
 
+        date = format_date(item.get("date"))
         title = item.get("title", "")
         desc = item.get("description", "")
         primary = item.get("primaryAmount", {})
         additional = item.get("additionalAmount", {})
         tag = item.get("additionalInfo", "")
 
-        print(f"{date_fmt} | {title:<30} | {desc:<20} | {primary['amount']:>6} {primary['postfix']} | {additional['amount']:>8} {additional['postfix']} {f'({tag})' if tag else ''}")
+        print(f"{date} | {title:<30} | {desc:<20} | {primary['amount']:>6} {primary['postfix']} | {additional['amount']:>8} {additional['postfix']} {f'({tag})' if tag else ''}")
 
 def handle_credits(args, session, headers):
     data = insnc.extractor.get_credit_details(session, headers, args.credit)
@@ -97,9 +97,8 @@ def handle_credits(args, session, headers):
     paid = data["progressBarDetails"]["currentValue"]["amount"]
     total = data["progressBarDetails"]["endValue"]["amount"]
     rate = info["rate"]["amount"]
-    start = info["startCreditDate"]
-    end = info["endCreditContract"]
-    schedule_url = "https://insync3.alfa-bank.by" + data["paymentSchedule"]["doc"]["url"]
+    start = format_date(info["startCreditDate"])
+    end = format_date(info["endCreditContract"])
 
     print(f"\n=== 💳 Credit Info: {loan['name']} ===")
     print(f"Start date   : {start}")
@@ -108,7 +107,6 @@ def handle_credits(args, session, headers):
     print(f"Total credit : {total:.2f} BYN")
     print(f"Paid so far  : {paid:.2f} BYN")
     print(f"Remaining    : {data['generalInfo']['fullRepaymentSum']['amount']:.2f} BYN")
-    print(f"Schedule URL : {schedule_url}")
 
 def handle_credits_list(args, session, headers):
     credits = insnc.extractor.list_available_credits(session, headers)
@@ -135,14 +133,14 @@ Examples:
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
 
-    parser.add_argument("--history", "-s", action="store_true", help="Fetch operations history")
+    parser.add_argument("--history", "-s", action="store_true", help="Fetch operations history. Default - 50 items")
     parser.add_argument("--items", "-i", type=int, default=50, help="Number of operations to fetch")
     parser.add_argument("--balance", "-b", action="store_true", help="Fetch balance info")
     parser.add_argument("--export", "-e", nargs="?", const=True, help="Export data to Excel (optional: custom path)")
     parser.add_argument("--package", "-p", action="store_true", help="Show package subscription conditions")
     parser.add_argument("--loyalty_status", action="store_true", help="Show loyalty program bonus balance")
     parser.add_argument("--loyalty_history", action="store_true", help="Show loyalty bonus transactions")
-    parser.add_argument("--credit", metavar="ID", help="Show credit details by credit ID")
+    parser.add_argument("--credit", "-c", metavar="ID", help="Show credit details by credit ID")
     parser.add_argument("--list_credits", action="store_true", help="List available credit IDs")
 
 
