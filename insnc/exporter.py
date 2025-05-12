@@ -39,18 +39,58 @@ def export_operations_to_excel(items, filename=None):
                     processed_ids.update({id_, candidate["id"]})
                     break
 
+    # Group currency exchanges
+    for i, item in enumerate(items):
+        id_ = item["id"]
+        date = item["date"]
+
+        if "CURRENCY_EXCHANGE" in item["icon"]["iconUrl"] and id_ not in processed_ids:
+            for j, candidate in enumerate(items):
+                if i == j or candidate["id"] in processed_ids:
+                    continue
+
+                if (
+                    candidate["date"] == date
+                    and "CURRENCY_EXCHANGE" in candidate["icon"]["iconUrl"]
+                ):
+                    # Find the pair: one with positive amount, one with negative operationAmount
+                    if item["amount"]["amount"] > 0 and "operationAmount" in item:
+                        income_item = item
+                        expense_item = candidate
+                    elif candidate["amount"]["amount"] > 0 and "operationAmount" in candidate:
+                        income_item = candidate
+                        expense_item = item
+                    else:
+                        continue  # Not a valid pair
+
+                    if "operationAmount" not in income_item or income_item["operationAmount"]["amount"] >= 0:
+                        continue  # Must have negative operationAmount to reflect expense
+
+                    record = {
+                        "date": format_date(date),
+                        "title": income_item["description"],
+                        "description": expense_item["description"],
+                        "Expense": abs(income_item["operationAmount"]["amount"]),
+                        "Income": abs(income_item["amount"]["amount"]),
+                        "postfix": "",
+                        "type": "Конвертация"
+                    }
+                    final_records.append(record)
+                    processed_ids.update({income_item["id"], expense_item["id"]})
+                    break
+
     # Regular income/expense
     for item in items:
         id_ = item["id"]
         if id_ in processed_ids:
             continue
 
-        amt = item["amount"]["amount"]
-        formatted_date = format_date(item["date"])
-        postfix = item["amount"]["postfix"]
+        amt_raw = item["amount"]["amount"]
+        amt = item["operationAmount"]["amount"] if "operationAmount" in item and amt_raw < 0 else amt_raw
+        postfix = item["operationAmount"]["postfix"] if "operationAmount" in item and amt_raw < 0 else item["amount"]["postfix"]
 
         record = {
-            "date": formatted_date,
+            "date": format_date(item["date"]),
             "title": item["title"],
             "description": item["description"],
             "Expense": abs(amt) if amt < 0 else None,
@@ -58,6 +98,7 @@ def export_operations_to_excel(items, filename=None):
             "postfix": postfix,
             "type": "Расход" if amt < 0 else "Приход"
         }
+
         final_records.append(record)
 
     # Sort by date
