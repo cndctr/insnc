@@ -8,7 +8,7 @@ import insnc.exporter
 
 def handle_history(args, session, headers):
     print(f"[→] Fetching {args.items} history items...")
-    operations = insnc.extractor.fetch_operations(session, headers, total_items=args.items)
+    operations = insnc.extractor.get_history(session, headers, total_items=args.items)
 
     if args.export:
         export_path = args.export if isinstance(args.export, str) else "operation_history.xlsx"
@@ -25,7 +25,7 @@ def handle_history(args, session, headers):
 
 def handle_balance(args, session, headers):
     print("[→] Fetching account balances...")
-    balances = insnc.extractor.fetch_balance(session, headers)
+    balances = insnc.extractor.get_balance(session, headers)
 
     print("\n=== ⚖️ Account Balances ===")
     for acc in balances:
@@ -69,7 +69,7 @@ def handle_loyalty(args, session, headers):
     print(f"Balance   : {bonus['amount']} {bonus['postfix']}")
 
 def handle_loyalty_history(args, session, headers):
-    items = insnc.extractor.fetch_loyalty_history(session, headers)
+    items = insnc.extractor.get_loyalty_history(session, headers)
 
     if not items:
         return
@@ -87,7 +87,41 @@ def handle_loyalty_history(args, session, headers):
 
         print(f"{date_fmt} | {title:<30} | {desc:<20} | {primary['amount']:>6} {primary['postfix']} | {additional['amount']:>8} {additional['postfix']} {f'({tag})' if tag else ''}")
 
+def handle_credits(args, session, headers):
+    data = insnc.extractor.get_credit_details(session, headers, args.credit)
+    if not data:
+        exit()
 
+    loan = data["loanCommonData"]
+    info = data["generalInfo"]["additionalInformation"]
+    paid = data["progressBarDetails"]["currentValue"]["amount"]
+    total = data["progressBarDetails"]["endValue"]["amount"]
+    rate = info["rate"]["amount"]
+    start = info["startCreditDate"]
+    end = info["endCreditContract"]
+    schedule_url = "https://insync3.alfa-bank.by" + data["paymentSchedule"]["doc"]["url"]
+
+    print(f"\n=== 💳 Credit Info: {loan['name']} ===")
+    print(f"Start date   : {start}")
+    print(f"End date     : {end}")
+    print(f"Rate         : {rate}%")
+    print(f"Total credit : {total:.2f} BYN")
+    print(f"Paid so far  : {paid:.2f} BYN")
+    print(f"Remaining    : {data['generalInfo']['fullRepaymentSum']['amount']:.2f} BYN")
+    print(f"Schedule URL : {schedule_url}")
+
+def handle_credits_list(args, session, headers):
+    credits = insnc.extractor.list_available_credits(session, headers)
+    if not credits:
+        print("No credits found.")
+        return
+
+    print("\n=== 🧾 Available Credits ===")
+    for c in credits:
+        id_ = c["widgetInfo"]["id"]
+        title = c["widgetInfo"]["info"]["title"]
+        balance = c["widgetInfo"]["info"]["availableAmount"]["amount"]
+        print(f"ID: {id_} | {title:<30} | Available: {balance:.2f}") 
 
 def main():
     parser = argparse.ArgumentParser(
@@ -108,6 +142,9 @@ Examples:
     parser.add_argument("--package", "-p", action="store_true", help="Show package subscription conditions")
     parser.add_argument("--loyalty_status", action="store_true", help="Show loyalty program bonus balance")
     parser.add_argument("--loyalty_history", action="store_true", help="Show loyalty bonus transactions")
+    parser.add_argument("--credit", metavar="ID", help="Show credit details by credit ID")
+    parser.add_argument("--list_credits", action="store_true", help="List available credit IDs")
+
 
 
     args = parser.parse_args()
@@ -118,7 +155,9 @@ Examples:
         "balance": handle_balance,
         "package": handle_package,
         "loyalty_status": handle_loyalty,
-        "loyalty_history": handle_loyalty_history
+        "loyalty_history": handle_loyalty_history,
+        "credit": handle_credits,
+        "list_credits": handle_credits_list
     }
 
     # Check if nothing is selected
