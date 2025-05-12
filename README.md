@@ -7,14 +7,16 @@
 ## 🚀 Features
 
 - 🔐 Secure login using environment variables
-- 📜 Fetch transaction history
-- 📜 Fetch cards balance
+- 📜 Get transaction history
+- 📜 Get cards balance
 - 💼 Get information about your service package
 - 🎁 Get information about youy loyalty program (status and history)
+- 💳 Get information about your credits 
 - 📊 Export to Excel with categorized operations:
   - Приход (Income)
   - Расход (Expense)
   - Перевод (Transfer)
+  - Конвертация (Currency exchange)
 
 ---
 
