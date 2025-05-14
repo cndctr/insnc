@@ -87,39 +87,44 @@ def handle_loyalty_history(args, session, headers):
 
         print(f"{date} | {title:<30} | {desc:<20} | {primary['amount']:>6} {primary['postfix']} | {additional['amount']:>8} {additional['postfix']} {f'({tag})' if tag else ''}")
 
+
 def handle_credits(args, session, headers):
-    data = insnc.extractor.get_credit_details(session, headers, args.credit)
-    if not data:
-        exit()
+    from insnc.extractor import get_credits
+    from insnc.exporter import format_date  # if format_date is defined there
 
-    loan = data["loanCommonData"]
-    info = data["generalInfo"]["additionalInformation"]
-    paid = data["progressBarDetails"]["currentValue"]["amount"]
-    total = data["progressBarDetails"]["endValue"]["amount"]
-    rate = info["rate"]["amount"]
-    start = format_date(info["startCreditDate"])
-    end = format_date(info["endCreditContract"])
+    credit_id = None if args.credits is True else args.credits
+    credits = get_credits(session, headers, credit_id)
 
-    print(f"\n=== 💳 Credit Info: {loan['name']} ===")
-    print(f"Start date   : {start}")
-    print(f"End date     : {end}")
-    print(f"Rate         : {rate}%")
-    print(f"Total credit : {total:.2f} BYN")
-    print(f"Paid so far  : {paid:.2f} BYN")
-    print(f"Remaining    : {data['generalInfo']['fullRepaymentSum']['amount']:.2f} BYN")
-
-def handle_credits_list(args, session, headers):
-    credits = insnc.extractor.list_available_credits(session, headers)
     if not credits:
-        print("No credits found.")
+        print("No credit information found.")
         return
 
-    print("\n=== 🧾 Available Credits ===")
-    for c in credits:
-        id_ = c["widgetInfo"]["id"]
-        title = c["widgetInfo"]["info"]["title"]
-        balance = c["widgetInfo"]["info"]["availableAmount"]["amount"]
-        print(f"ID: {id_} | {title:<30} | Available: {balance:.2f}") 
+    if credit_id:  # Show detailed view
+        data = credits[0]
+        loan = data["loanCommonData"]
+        info = data["generalInfo"]["additionalInformation"]
+        paid = data["progressBarDetails"]["currentValue"]["amount"]
+        total = data["progressBarDetails"]["endValue"]["amount"]
+        rate = info["rate"]["amount"]
+        start = format_date(info["startCreditDate"])
+        end = format_date(info["endCreditContract"])
+
+        print(f"\n=== 💳 Credit Info: {loan['name']} ===")
+        print(f"Start date   : {start}")
+        print(f"End date     : {end}")
+        print(f"Rate         : {rate}%")
+        print(f"Total credit : {total:.2f} BYN")
+        print(f"Paid so far  : {paid:.2f} BYN")
+        print(f"Remaining    : {data['generalInfo']['fullRepaymentSum']['amount']:.2f} BYN")
+    else:  # List view
+        print("\n=== 🧾 Available Credits ===")
+        for c in credits:
+            widget = c["widgetInfo"]
+            id_ = widget["id"]
+            title = widget["info"]["title"]
+            balance = widget["info"]["availableAmount"]["amount"]
+            print(f"ID: {id_} | {title:<30} | Available: {balance:.2f}")
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -138,11 +143,9 @@ Examples:
     parser.add_argument("--balance", "-b", action="store_true", help="Fetch balance info")
     parser.add_argument("--export", "-e", nargs="?", const=True, help="Export data to Excel (optional: custom path)")
     parser.add_argument("--package", "-p", action="store_true", help="Show package subscription conditions")
-    parser.add_argument("--loyalty_status", action="store_true", help="Show loyalty program bonus balance")
-    parser.add_argument("--loyalty_history", action="store_true", help="Show loyalty bonus transactions")
-    parser.add_argument("--credit", "-c", metavar="ID", help="Show credit details by credit ID")
-    parser.add_argument("--list_credits", action="store_true", help="List available credit IDs")
-
+    parser.add_argument("--loyalty_status", "-ls", action="store_true", help="Show loyalty program bonus balance")
+    parser.add_argument("--loyalty_history", "-lh", action="store_true", help="Show loyalty bonus transactions")
+    parser.add_argument("--credits", "-c", nargs="?", const=True, metavar="ID", help="Show credit details. Use without ID to list all.")
 
 
     args = parser.parse_args()
@@ -154,8 +157,8 @@ Examples:
         "package": handle_package,
         "loyalty_status": handle_loyalty,
         "loyalty_history": handle_loyalty_history,
-        "credit": handle_credits,
-        "list_credits": handle_credits_list
+        "credits": handle_credits
+
     }
 
     # Check if nothing is selected

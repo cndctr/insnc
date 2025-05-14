@@ -98,21 +98,36 @@ def get_loyalty_history(session, headers, page_size=20, offset=0):
 
     return response.json().get("items", [])
 
-def get_credit_details(session, headers, credit_id):
-    url = f"https://insync3.alfa-bank.by/web/api/credit-details/info?id={credit_id}"
-    response = session.get(url, headers=headers)
-    if not response.ok:
-        print(f"[!] Failed to fetch credit info for ID {credit_id}")
-        return None
-    return response.json()
 
-def list_available_credits(session, headers):
-    url = "https://insync3.alfa-bank.by/web/api/credit-details/list"
-    response = session.get(url, headers=headers)
-    if not response.ok:
-        print("[!] Failed to fetch list of credits")
+def get_credits(session, headers, credit_id=None):
+    list_response = session.get(
+        "https://insync3.alfa-bank.by/web/api/credit-details/list",
+        headers=headers
+    )
+
+    if not list_response.ok:
+        print(f"[✗] Failed to fetch credit list: {list_response.status_code}")
         return []
 
-    data = response.json()
-    return data.get("credits", [])
+    credits = list_response.json().get("credits", [])
+
+    # If a specific ID is requested, filter to that one
+    if credit_id:
+        credits = [c for c in credits if c.get("widgetInfo", {}).get("id") == credit_id]
+
+    result = []
+    for credit in credits:
+        cid = credit.get("widgetInfo", {}).get("id")
+        detail_response = session.get(
+            f"https://insync3.alfa-bank.by/web/api/credit-details/info?id={cid}",
+            headers=headers
+        )
+        if detail_response.ok:
+            data = detail_response.json()
+            data["widgetInfo"] = credit.get("widgetInfo", {})
+            result.append(data)
+        else:
+            print(f"[!] Failed to fetch credit details for ID {cid}")
+
+    return result
 
