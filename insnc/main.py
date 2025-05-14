@@ -134,13 +134,14 @@ Examples:
   insnc --balance              Show account balances in console
   insnc --history --items 100  Fetch 100 transactions
   insnc -s -e history.xlsx     Export 50 transactions to Excel file
+  insnc -bspc -ls -lh          Show all available information       
 """,
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
 
+    parser.add_argument("--balance", "-b", action="store_true", help="Fetch balance info")
     parser.add_argument("--history", "-s", action="store_true", help="Fetch operations history. Default - 50 items")
     parser.add_argument("--items", "-i", type=int, default=50, help="Number of operations to fetch")
-    parser.add_argument("--balance", "-b", action="store_true", help="Fetch balance info")
     parser.add_argument("--export", "-e", nargs="?", const=True, help="Export data to Excel (optional: custom path)")
     parser.add_argument("--package", "-p", action="store_true", help="Show package subscription conditions")
     parser.add_argument("--loyalty_status", "-ls", action="store_true", help="Show loyalty program bonus balance")
@@ -152,8 +153,8 @@ Examples:
 
     # Check if any "main" flag is set
     command_flags = {
-        "history": handle_history,
         "balance": handle_balance,
+        "history": handle_history,
         "package": handle_package,
         "loyalty_status": handle_loyalty,
         "loyalty_history": handle_loyalty_history,
