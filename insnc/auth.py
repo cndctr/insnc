@@ -41,7 +41,7 @@ def login_and_get_token():
         "Referer": "https://insnc.by",
         "User-Agent": "Mozilla/5.0",
         "x-session-id": session_id,
-        "X-API-Version": "50",
+        "X-API-Version": "52",
         "X-Client-App": x_client_app,
         "X-Dev-ID": x_dev_id
     }
