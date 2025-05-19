@@ -24,14 +24,15 @@
 
 ### 1. Clone and install
 
-```bash
+```cmd
 git clone https://github.com/cndctr/insnc.git
 cd insnc
 pip install -r requirements.txt
 ```
 You can install it locally using `pip`
 
-```bash
+```cmd
+cd insnc
 pip install --editable .
 ```
 
@@ -43,7 +44,7 @@ Edit config.json
 {
   "ALFA_LOGIN": "", # Insert your login
   "ALFA_AUTH": "", # Insert your base64 encoded credentials (login:password)
-  "X-Client-App": "desktop/Windows--NT 10.0 10/Firefox--137.0", # Change to your browser value
+  "X-Client-App": "desktop/Windows--NT 10.0 10/Firefox--138.0", # Change to your browser value
   "X-Dev-ID": "de040169-0d6c-40e3-b621-a783bf350422" # Change to your value
 }
 ```
@@ -76,12 +77,12 @@ setx ALFA_AUTH "base64encoded_credentials"
 
 ## 🧪 Usage
 
-```bash
-# Fetch 50 recent operations and export to Excel
+```cmd
+# Fetch 50 recent operations
 python main.py --history
 
-# Fetch a custom number of items
-python main.py --history --items 100
+# Fetch 20 recent operations and export them to Excel
+python main.py -si 20 -e .\history.xlsx
 
 # Get cards' balance
 python main.py --balance
@@ -92,9 +93,9 @@ python main.py --loyalty_status --loyalty_history
 
 Or after setup using pip locally:
 
-```bash
+```cmd
 insnc --history --items 20
-insnc -s -i 20
+insnc --credits
 ```
 
 ---
