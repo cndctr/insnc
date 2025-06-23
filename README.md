@@ -10,7 +10,7 @@
 - 📜 Get transaction history
 - 📜 Get cards balance
 - 💼 Get information about your service package
-- 🎁 Get information about youy loyalty program (status and history)
+- 🎁 Get information about your loyalty program (status and history)
 - 💳 Get information about your credits 
 - 📊 Export to Excel with categorized operations:
   - Приход (Income)
