@@ -8,27 +8,33 @@ import requests
 CONFIG_FILE = "config.json"
 
 def load_config():
-    if not os.path.exists(CONFIG_FILE):
-        raise FileNotFoundError(f"{CONFIG_FILE} not found. Please create it and add your credentials and headers.")
-    
-    with open(CONFIG_FILE, "r", encoding="utf-8") as f:
-        return json.load(f)
+    # Try to load from config file if it exists
+    if os.path.exists(CONFIG_FILE):
+        with open(CONFIG_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return {}
 
 def login_and_get_token():
-    config = load_config()
+    # First try environment variables, then config file
+    login = os.getenv("ALFA_LOGIN")
+    auth_env = os.getenv("ALFA_AUTH")
+    x_client_app = os.getenv("X_CLIENT_APP")
+    x_dev_id = os.getenv("X_DEV_ID")
 
-    # Fallback: if values are empty in config.json, try env vars
-    login = config.get("ALFA_LOGIN") or os.getenv("ALFA_LOGIN")
-    auth_env = config.get("ALFA_AUTH") or os.getenv("ALFA_AUTH")
-    x_client_app = config.get("X-Client-App")
-    x_dev_id = config.get("X-Dev-ID")
+    # Fallback to config file if env vars are not set
+    if not all([login, auth_env, x_client_app, x_dev_id]):
+        config = load_config()
+        login = login or config.get("ALFA_LOGIN")
+        auth_env = auth_env or config.get("ALFA_AUTH")
+        x_client_app = x_client_app or config.get("X-Client-App")
+        x_dev_id = x_dev_id or config.get("X-Dev-ID")
 
     if not login:
-        raise ValueError("Missing ALFA_LOGIN (in config.json or env)")
+        raise ValueError("Missing ALFA_LOGIN (set as environment variable or in config.json)")
     if not auth_env:
-        raise ValueError("Missing ALFA_AUTH (in config.json or env)")
+        raise ValueError("Missing ALFA_AUTH (set as environment variable or in config.json)")
     if not x_client_app or not x_dev_id:
-        raise ValueError("Missing required headers (X-Client-App, X-Dev-ID) in config.json")
+        raise ValueError("Missing required headers (X-Client-App, X-Dev-ID)")
 
     session = requests.Session()
     session_id = str(uuid.uuid4())
