@@ -35,7 +35,7 @@ You can install it locally using `pip`
 cd insnc
 pip install --editable .
 ```
-
+Or just download the latest executable from releases page.
 ### 2. Configure 
 
 Edit config.json
@@ -50,6 +50,10 @@ Edit config.json
 ```
 How to get base64 encoded credentials? 
  - You can use [base64decode.org](https://www.base64decode.org/) to encode your credentials pair - login:password
+ - You can use powershell oneliner (recommended)
+```powershell
+[convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("login:password"))
+```
 
 How to get "X-Client-App" and "X-Dev-ID"?
 1. When you log in to [insnc.by](https://insnc.by) in your browser for the first time, the bank will prompt you with the second step of 2FA and display a QR code on the screen.  
